@@ -1,6 +1,20 @@
 #![windows_subsystem = "windows"]
 
-use eframe::egui;
+use eframe::egui::{self, Color32, Painter, Pos2, Rect, Vec2};
+
+fn show_block(ui: &mut egui::Ui) {
+    let full_rect = ui.max_rect();
+    let block_size = Vec2::new(full_rect.width(), full_rect.height() / 5.0);
+
+    let block_rect = Rect::from_min_size(full_rect.min, block_size);
+
+    let painter: &Painter = ui.painter();
+    painter.rect_filled(
+        block_rect, 
+        5.0,  
+        Color32::from_rgba_premultiplied(150, 150, 150, 60),
+    );
+}
 
 fn main() -> Result<(), eframe::Error> {
     // create a window
@@ -23,14 +37,14 @@ fn main() -> Result<(), eframe::Error> {
 //define TinyCalc struct
 struct TinyCalc {
     // input
-    input: String,
+    result: String,
 }
 
 //TinyCalc struct new function
 impl TinyCalc {
     fn new(_cc: &eframe::CreationContext<'_>) -> Self {        
         Self {
-            input: String::new(),
+            result: String::new(),
         }
     }
 }
@@ -39,7 +53,7 @@ impl TinyCalc {
 impl eframe::App for TinyCalc {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-
+            show_block(ui);
         });
     }
 }
