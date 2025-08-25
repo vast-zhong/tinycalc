@@ -1,27 +1,45 @@
+#![windows_subsystem = "windows"]
+
 use eframe::egui;
 
-fn main() {
-    let native_options = eframe::NativeOptions::default();
-    eframe::run_native("My egui App", native_options, Box::new(|cc| Ok(Box::new(MyEguiApp::new(cc)))));
+fn main() -> Result<(), eframe::Error> {
+    // create a window
+    let options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default().with_inner_size([400.0, 500.0]),
+        ..Default::default()
+    };
+
+    // run egui app
+    eframe::run_native(
+        "TinyCalc", // title
+        options, 
+        Box::new(|cc| {
+            // return eframe::App trait
+            Ok(Box::new(TinyCalc::new(cc)))
+        }),
+    )
 }
 
-#[derive(Default)]
-struct MyEguiApp {}
+//define TinyCalc struct
+struct TinyCalc {
+    // input
+    input: String,
+}
 
-impl MyEguiApp {
-    fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        // Customize egui here with cc.egui_ctx.set_fonts and cc.egui_ctx.set_visuals.
-        // Restore app state using cc.storage (requires the "persistence" feature).
-        // Use the cc.gl (a glow::Context) to create graphics shaders and buffers that you can use
-        // for e.g. egui::PaintCallback.
-        Self::default()
+//TinyCalc struct new function
+impl TinyCalc {
+    fn new(_cc: &eframe::CreationContext<'_>) -> Self {        
+        Self {
+            input: String::new(),
+        }
     }
 }
 
-impl eframe::App for MyEguiApp {
-   fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-       egui::CentralPanel::default().show(ctx, |ui| {
-           ui.heading("Hello World!");
-       });
-   }
+//complete eframe::App trait 
+impl eframe::App for TinyCalc {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::CentralPanel::default().show(ctx, |ui| {
+
+        });
+    }
 }

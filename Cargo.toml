@@ -4,4 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-eframe = "0.32.1"
+eframe = { version = "0.32.1", default-features = true }
+egui_extras = "0.32.1"
+
+# On Windows, you can hide the console window for release builds by enabling this:
+[package.metadata.windows]
+subsystem = "windows"
