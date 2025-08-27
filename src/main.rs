@@ -30,25 +30,30 @@ fn result_block(ui: &mut egui::Ui, display: &str) {
     );
 }
 
+// Draw the input block
 fn input_block(ui: &mut egui::Ui) -> Option<String> {
     let full_rect = ui.max_rect();
     let mut clicked_button = None;
 
     let result_h = full_rect.height() / 5.0;
+    // get the start position of the input block
     let top_left = Pos2::new(full_rect.min.x, full_rect.min.y + result_h);
+    // the size of the input block, width: full rect width, height: 4/5 full rect height
     let block_size = Vec2::new(full_rect.width(), full_rect.height() - result_h);
     let block_rect = Rect::from_min_size(top_left, block_size);
+    // then draw the input block
     let painter: &Painter = ui.painter();
     painter.rect_filled(
         block_rect, 
         5.0,  
         Color32::from_rgb(42, 48, 58), // #2A303A
     );
+    // the size of each cell in input block
     let cell_w = block_rect.width() / 4.0;
     let cell_h = block_rect.height() / 5.0;
-    
+    // the gap between each cell
     let gap = 4.0; 
-
+    // each cell in the input block
     let labels = [
         ["CE", "C", "DEL", "/"],
         ["7", "8", "9", "*"],
@@ -57,8 +62,12 @@ fn input_block(ui: &mut egui::Ui) -> Option<String> {
         ["%", "0", ".", "="],
     ];
 
+    // double loop to draw each cell
+    // every row
     for (row_i, row) in labels.iter().enumerate() {
+        // every col
         for (col_i, &text) in row.iter().enumerate() {
+            // get the position of the cell
             let x = block_rect.min.x + col_i as f32 * cell_w;
             let y = block_rect.min.y + row_i as f32 * cell_h;
             
