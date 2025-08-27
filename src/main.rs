@@ -59,7 +59,7 @@ fn input_block(ui: &mut egui::Ui) {
 
             painter.rect_stroke(
                 button_rect,
-                egui::Rounding::same(8),
+                egui::CornerRadius::same(8),
                 egui::Stroke::new(0.4, Color32::GRAY),
                 egui::StrokeKind::Inside,
             );
