@@ -70,35 +70,40 @@ fn input_block(ui: &mut egui::Ui) -> Option<String> {
             // get the position of the cell
             let x = block_rect.min.x + col_i as f32 * cell_w;
             let y = block_rect.min.y + row_i as f32 * cell_h;
-            
+            // create the button rect
+            // 1/2 gap is left on the left/right side of the button, sum is gap 
             let button_rect = Rect::from_min_size(
                 Pos2::new(x + gap / 2.0, y + gap / 2.0), 
                 Vec2::new(cell_w - gap, cell_h - gap)
             );
-
+            // create the area for the button
+            // create the only id for each area
+            // The text will be store in the clicked_button when the button was pressed
             if ui
                 .interact(button_rect, ui.id().with((row_i, col_i)), egui::Sense::click())
                 .clicked()
             {
                 clicked_button = Some(text.to_string());
             }
-
+            // draw the stroke of the rect
             painter.rect_stroke(
                 button_rect,
                 egui::CornerRadius::same(8),
                 egui::Stroke::new(0.4, Color32::GRAY),
                 egui::StrokeKind::Inside,
             );
+            // draw the test in the center of the rect
             painter.text(
                 button_rect.center(),
                 egui::Align2::CENTER_CENTER,
                 text,
                 egui::FontId::proportional(20.0),
-                Color32::WHITE,
+                // Change the color of the text
+                Color32::from_rgb(255, 255, 255),
             );
         }
     }
-    
+    // return the text of the clicked button
     clicked_button
 }
 
