@@ -146,9 +146,10 @@ impl TinyCalc {
         }
     }
     
-    // 处理按钮点击
+    // handle diff button
     fn handle_button(&mut self, button: &str) {
         match button {
+            // when "C" or "CE" is pressed, clear the expression and display "0"
             "C" => {
                 self.display = "0".to_string();
                 self.expression.clear();
@@ -158,8 +159,10 @@ impl TinyCalc {
                 self.display = "0".to_string();
                 self.just_calculated = false;
             }
+            // when "DEL" is pressed, remove the last character in the expression
             "DEL" => {
                 if !self.expression.is_empty() {
+                    // pop only remove the last character
                     self.expression.pop();
                     if self.expression.is_empty() {
                         self.display = "0".to_string();
@@ -169,6 +172,7 @@ impl TinyCalc {
                 }
                 self.just_calculated = false;
             }
+            // when "=" is pressed, calculate the expression, run func evaluate_expression()
             "=" => {
                 if !self.expression.is_empty() {
                     if let Ok(result) = self.evaluate_expression(&self.expression) {
@@ -178,6 +182,10 @@ impl TinyCalc {
                     }
                 }
             }
+            // when operator is pressed, check if the expression is valid
+            // if the expression is empty, do nothing
+            // if the expression ends with operator, do nothing
+            // if the expression ends with decimal, do nothing
             "+" | "-" | "*" | "/" | "%" => {
                 if self.just_calculated {
                     self.just_calculated = false;
