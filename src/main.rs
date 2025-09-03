@@ -76,33 +76,58 @@ fn input_block(ui: &mut egui::Ui) -> Option<String> {
                 Pos2::new(x + gap / 2.0, y + gap / 2.0), 
                 Vec2::new(cell_w - gap, cell_h - gap)
             );
-            // create the area for the button
-            // create the only id for each area
-            // The text will be store in the clicked_button when the button was pressed
-            if ui
-                .interact(button_rect, ui.id().with((row_i, col_i)), egui::Sense::click())
-                .clicked()
-            {
+            // 检测按钮交互状态
+            let response = ui.interact(button_rect, ui.id().with((row_i, col_i)), egui::Sense::click());
+            
+            // 动画效果计算
+            let is_pressed = response.is_pointer_button_down_on();
+            let animation_progress = if is_pressed { 1.0 } else { 0.0 };
+            
+            // 应用动画效果
+            let animated_color = Color32::from_rgb(
+                42 + (20.0 * animation_progress) as u8,
+                48 + (20.0 * animation_progress) as u8, 
+                58 + (20.0 * animation_progress) as u8
+            );
+            
+            // 缩放效果
+            let scale_factor = 1.0 - 0.05 * animation_progress;
+            let animated_rect = Rect::from_center_size(
+                button_rect.center(),
+                button_rect.size() * scale_factor
+            );
+            
+            // 检查按钮是否被点击
+            if response.clicked() {
                 clicked_button = Some(text.to_string());
             }
-            // draw the stroke of the rect
-            painter.rect_stroke(
-                button_rect,
+            
+            // 绘制按钮背景（带动画效果）
+            painter.rect_filled(
+                animated_rect,
                 egui::CornerRadius::same(8),
-                egui::Stroke::new(0.4, Color32::GRAY),
-                egui::StrokeKind::Inside,
+                animated_color,
             );
-            // draw the test in the center of the rect
+            
+            // 绘制按钮边框
+             painter.rect_stroke(
+                 animated_rect,
+                 egui::CornerRadius::same(8),
+                 egui::Stroke::new(0.4, Color32::GRAY),
+                 egui::StrokeKind::Inside,
+             );
+            
+            // 绘制按钮文本
             painter.text(
-                button_rect.center(),
+                animated_rect.center(),
                 egui::Align2::CENTER_CENTER,
                 text,
                 egui::FontId::proportional(20.0),
-                // Change the color of the text
                 Color32::from_rgb(255, 255, 255),
             );
         }
     }
+    
     // return the text of the clicked button
     clicked_button
 }
@@ -134,6 +159,10 @@ struct TinyCalc {
     expression: String,
     // calculated
     just_calculated: bool,
+    // get the position of the pressed button
+    pressed_button: Option<(usize, usize)>, 
+    // the time when the button was pressed
+    press_time: f32, 
 }
 
 //TinyCalc struct new function
@@ -143,6 +172,8 @@ impl TinyCalc {
             display: "0".to_string(),
             expression: String::new(),
             just_calculated: false,
+            pressed_button: None,
+            press_time: 0.0,
         }
     }
     
@@ -195,6 +226,10 @@ impl TinyCalc {
                     self.display = self.expression.clone();
                 }
             }
+            // when "." is pressed, check if the expression is valid
+            // if the expression is empty, add "0."
+            // if the expression ends with operator, add "0."
+            // if the expression ends with decimal, do nothing
             "." => {
                 if self.just_calculated {
                     self.expression = "0.".to_string();
@@ -209,8 +244,12 @@ impl TinyCalc {
                     self.display = self.expression.clone();
                 }
             }
+            // when other button is pressed, check if the expression is valid
+            // if the expression is empty, add the button
+            // if the expression ends with operator, add the button
+            // if the expression ends with decimal, add the button
             _ => {
-                // 数字按钮
+                // number button
                 if self.just_calculated {
                     self.expression = button.to_string();
                     self.just_calculated = false;
