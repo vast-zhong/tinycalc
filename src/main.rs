@@ -76,40 +76,40 @@ fn input_block(ui: &mut egui::Ui) -> Option<String> {
                 Pos2::new(x + gap / 2.0, y + gap / 2.0), 
                 Vec2::new(cell_w - gap, cell_h - gap)
             );
-            // 检测按钮交互状态
+            // check the interaction state of the button
             let response = ui.interact(button_rect, ui.id().with((row_i, col_i)), egui::Sense::click());
             
-            // 动画效果计算
+            // animation effect cal
             let is_pressed = response.is_pointer_button_down_on();
             let animation_progress = if is_pressed { 1.0 } else { 0.0 };
             
-            // 应用动画效果
+            // change the color of the button
             let animated_color = Color32::from_rgb(
                 42 + (20.0 * animation_progress) as u8,
                 48 + (20.0 * animation_progress) as u8, 
                 58 + (20.0 * animation_progress) as u8
             );
             
-            // 缩放效果
+            // change the size of the button
             let scale_factor = 1.0 - 0.05 * animation_progress;
             let animated_rect = Rect::from_center_size(
                 button_rect.center(),
                 button_rect.size() * scale_factor
             );
             
-            // 检查按钮是否被点击
+            // check if the button is clicked
             if response.clicked() {
                 clicked_button = Some(text.to_string());
             }
             
-            // 绘制按钮背景（带动画效果）
+            // draw the button background
             painter.rect_filled(
                 animated_rect,
                 egui::CornerRadius::same(8),
                 animated_color,
             );
             
-            // 绘制按钮边框
+            // draw the button border
              painter.rect_stroke(
                  animated_rect,
                  egui::CornerRadius::same(8),
@@ -117,7 +117,7 @@ fn input_block(ui: &mut egui::Ui) -> Option<String> {
                  egui::StrokeKind::Inside,
              );
             
-            // 绘制按钮文本
+            // draw the button text
             painter.text(
                 animated_rect.center(),
                 egui::Align2::CENTER_CENTER,
@@ -159,10 +159,6 @@ struct TinyCalc {
     expression: String,
     // calculated
     just_calculated: bool,
-    // get the position of the pressed button
-    pressed_button: Option<(usize, usize)>, 
-    // the time when the button was pressed
-    press_time: f32, 
 }
 
 //TinyCalc struct new function
@@ -172,8 +168,6 @@ impl TinyCalc {
             display: "0".to_string(),
             expression: String::new(),
             just_calculated: false,
-            pressed_button: None,
-            press_time: 0.0,
         }
     }
     
