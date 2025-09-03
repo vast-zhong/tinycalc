@@ -77,27 +77,32 @@ fn input_block(ui: &mut egui::Ui) -> Option<String> {
                 Vec2::new(cell_w - gap, cell_h - gap)
             );
             // check the interaction state of the button
+            // egui::Sense::click() means the button can be clicked
             let response = ui.interact(button_rect, ui.id().with((row_i, col_i)), egui::Sense::click());
             
             // animation effect cal
             let is_pressed = response.is_pointer_button_down_on();
             let animation_progress = if is_pressed { 1.0 } else { 0.0 };
             
+            // color animation effect
             // change the color of the button
+            // change the color of the button when it is pressed, plus 20
             let animated_color = Color32::from_rgb(
                 42 + (20.0 * animation_progress) as u8,
                 48 + (20.0 * animation_progress) as u8, 
                 58 + (20.0 * animation_progress) as u8
             );
             
-            // change the size of the button
+            // Change the size of the button
+            // Zoom animation effect
             let scale_factor = 1.0 - 0.05 * animation_progress;
             let animated_rect = Rect::from_center_size(
                 button_rect.center(),
                 button_rect.size() * scale_factor
             );
             
-            // check if the button is clicked
+            // Check if the button is clicked
+            // Store the text of the clicked button
             if response.clicked() {
                 clicked_button = Some(text.to_string());
             }
