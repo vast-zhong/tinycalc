@@ -264,6 +264,7 @@ impl TinyCalc {
         }
     }
     
+    // Check if the expression ends with an operator
     fn ends_with_operator(&self) -> bool {
         if let Some(last_char) = self.expression.chars().last() {
             matches!(last_char, '+' | '-' | '*' | '/' | '%')
@@ -272,6 +273,7 @@ impl TinyCalc {
         }
     }
     
+    // Check if the expression can add a decimal point
     fn can_add_decimal(&self) -> bool {
         if self.expression.is_empty() {
             return true;
@@ -294,11 +296,9 @@ impl TinyCalc {
         true
     }
     
+    // Evaluate the expression
     fn evaluate_expression(&self, expr: &str) -> Result<f64, String> {
-        // 简单的表达式求值，支持基本四则运算和取余
         let expr = expr.replace(" ", "");
-        
-        // 这里使用一个简单的求值方法
         self.simple_eval(&expr)
     }
     
