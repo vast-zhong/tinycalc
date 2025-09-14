@@ -298,19 +298,25 @@ impl TinyCalc {
     
     // Evaluate the expression
     fn evaluate_expression(&self, expr: &str) -> Result<f64, String> {
+        // Remove the space in the expression
         let expr = expr.replace(" ", "");
+        // Call the simple_eval function to evaluate the expression
         self.simple_eval(&expr)
     }
     
+    // Simple eval function
     fn simple_eval(&self, expr: &str) -> Result<f64, String> {
-        // ç®€å•çš„é€’å½’ä¸‹é™è§£æå™¨
+        // chars() changes String into str::str::Chars
+        // peekable() return std::iter::Peekable<std::str::Chars>
+        // Then we can call peek() to get next item
         let mut chars = expr.chars().peekable();
         self.parse_expression(&mut chars)
     }
     
+    // chars is "&mut std::iter::Peekable<std::str::Chars>"
     fn parse_expression(&self, chars: &mut std::iter::Peekable<std::str::Chars>) -> Result<f64, String> {
         let mut result = self.parse_term(chars)?;
-        
+        // Find 
         while let Some(&op) = chars.peek() {
             if op == '+' || op == '-' {
                 chars.next();
@@ -339,12 +345,12 @@ impl TinyCalc {
                     result *= factor;
                 } else if op == '/' {
                     if factor == 0.0 {
-                        return Err("é™¤é›¶é”™è¯¯".to_string());
+                        return Err("³ıÁã´íÎó".to_string());
                     }
                     result /= factor;
                 } else if op == '%' {
                     if factor == 0.0 {
-                        return Err("é™¤é›¶é”™è¯¯".to_string());
+                        return Err("³ıÁã´íÎó".to_string());
                     }
                     result %= factor;
                 }
@@ -369,12 +375,14 @@ impl TinyCalc {
         }
         
         if num_str.is_empty() {
-            Err("æ— æ•ˆçš„æ•°å­—".to_string())
+            Err("ÎŞĞ§µÄÊı×Ö".to_string())
         } else {
-            num_str.parse::<f64>().map_err(|_| "æ•°å­—è§£æé”™è¯¯".to_string())
+            num_str.parse::<f64>().map_err(|_| "Êı×Ö½âÎö´íÎó".to_string())
         }
     }
     
+    // Check it is float or not
+    // Return String
     fn format_number(&self, num: f64) -> String {
         if num.fract() == 0.0 && num.abs() < 1e15 {
             format!("{}", num as i64)
