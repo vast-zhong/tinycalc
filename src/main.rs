@@ -55,7 +55,7 @@ fn input_block(ui: &mut egui::Ui) -> Option<String> {
     let gap = 4.0; 
     // each cell in the input block
     let labels = [
-        ["CE", "C", "DEL", "/"],
+        ["+/-", "AC", "DEL", "/"],
         ["7", "8", "9", "*"],
         ["4", "5", "6", "-"],
         ["1", "2", "3", "+"],
@@ -179,8 +179,12 @@ impl TinyCalc {
     // handle diff button
     fn handle_button(&mut self, button: &str) {
         match button {
+            // when "+/-" is pressed, toggle the sign of number
+            "+/-" => {
+                self.toggle_sign();
+            }
             // when "C" or "CE" is pressed, clear the expression and display "0"
-            "C" => {
+            "AC" => {
                 self.display = "0".to_string();
                 self.expression.clear();
                 self.just_calculated = false;
@@ -296,6 +300,30 @@ impl TinyCalc {
         true
     }
     
+    // Toggle the sign of current number (only for the first number)
+    fn toggle_sign(&mut self) {
+        if self.just_calculated {
+            // If just calculated, toggle the sign of the result
+            if let Ok(num) = self.display.parse::<f64>() {
+                let toggled = -num;
+                self.display = self.format_number(toggled);
+                self.expression = self.display.clone();
+            }
+        } else if self.display == "0" {
+            // If display is "0", do nothing
+            return;
+        } else if self.expression.is_empty() || !self.ends_with_operator() {
+            // Only toggle sign if we're at the beginning or if the expression doesn't end with an operator
+            // This means we're inputting the first number
+            if let Ok(num) = self.display.parse::<f64>() {
+                let toggled = -num;
+                self.display = self.format_number(toggled);
+                self.expression = self.display.clone();
+            }
+        }
+    }
+    
+    // Recursively evaluate the expression
     // Evaluate the expression
     fn evaluate_expression(&self, expr: &str) -> Result<f64, String> {
         // Remove the space in the expression
@@ -314,12 +342,22 @@ impl TinyCalc {
     }
     
     // chars is "&mut std::iter::Peekable<std::str::Chars>"
+    // Return the result of the expression
+    // Imaging a expression "num1+num2-num3*num4+num5"
+    // We can parse the expression like the following:
+    // "num1+num2-num3*num4+num5"(exp)
+    // exp:num1 + "num2-num3*num4+num5"(exp1)
+    // exp1:num2 - "num3*num4+num5"(exp2)
+    // exp2:num3*num4 + "num5"(exp3)
+    // '+' and '-' are the lowest level
     fn parse_expression(&self, chars: &mut std::iter::Peekable<std::str::Chars>) -> Result<f64, String> {
         let mut result = self.parse_term(chars)?;
-        // Find 
+        // Find the operator in the expression
         while let Some(&op) = chars.peek() {
             if op == '+' || op == '-' {
                 chars.next();
+                // Call parse_term to get the next term,like exp2:num3*num4 + num5
+                // Then we can get the result of exp2
                 let term = self.parse_term(chars)?;
                 if op == '+' {
                     result += term;
@@ -345,12 +383,12 @@ impl TinyCalc {
                     result *= factor;
                 } else if op == '/' {
                     if factor == 0.0 {
-                        return Err("³ýÁã´íÎó".to_string());
+                        return Err("".to_string());
                     }
                     result /= factor;
                 } else if op == '%' {
                     if factor == 0.0 {
-                        return Err("³ýÁã´íÎó".to_string());
+                        return Err("".to_string());
                     }
                     result %= factor;
                 }
@@ -365,6 +403,14 @@ impl TinyCalc {
     fn parse_factor(&self, chars: &mut std::iter::Peekable<std::str::Chars>) -> Result<f64, String> {
         let mut num_str = String::new();
         
+        // Handle negative sign at the beginning
+        if let Some(&ch) = chars.peek() {
+            if ch == '-' {
+                num_str.push(ch);
+                chars.next();
+            }
+        }
+        
         while let Some(&ch) = chars.peek() {
             if ch.is_ascii_digit() || ch == '.' {
                 num_str.push(ch);
@@ -374,19 +420,22 @@ impl TinyCalc {
             }
         }
         
-        if num_str.is_empty() {
-            Err("ÎÞÐ§µÄÊý×Ö".to_string())
+        if num_str.is_empty() || num_str == "-" {
+            Err("".to_string())
         } else {
-            num_str.parse::<f64>().map_err(|_| "Êý×Ö½âÎö´íÎó".to_string())
+            num_str.parse::<f64>().map_err(|_| "".to_string())
         }
     }
     
     // Check it is float or not
     // Return String
     fn format_number(&self, num: f64) -> String {
+        // fract() return the part after the decimal point, then we can check it is float or not
         if num.fract() == 0.0 && num.abs() < 1e15 {
             format!("{}", num as i64)
         } else {
+            // max 10 digits after decimal point
+            // trim_end_matches() remove the trailing zeros and decimal point
             let formatted = format!("{:.10}", num);
             formatted.trim_end_matches('0').trim_end_matches('.').to_string()
         }
