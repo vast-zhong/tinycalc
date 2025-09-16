@@ -343,12 +343,14 @@ impl TinyCalc {
     
     // chars is "&mut std::iter::Peekable<std::str::Chars>"
     // Return the result of the expression
-    // Imaging a expression "num1+num2-num3*num4+num5"
-    // We can parse the expression like the following:
+    // Imaging a expression "num1+num2-num3*num4+num5" -> "term1+term2-term3+term4"
+    // "term" is the expression that can be calculated, call parse_term, it can be num3*num4, or a number
+
     // "num1+num2-num3*num4+num5"(exp)
     // exp:num1 + "num2-num3*num4+num5"(exp1)
     // exp1:num2 - "num3*num4+num5"(exp2)
     // exp2:num3*num4 + "num5"(exp3)
+
     // '+' and '-' are the lowest level
     fn parse_expression(&self, chars: &mut std::iter::Peekable<std::str::Chars>) -> Result<f64, String> {
         let mut result = self.parse_term(chars)?;
@@ -372,6 +374,7 @@ impl TinyCalc {
         Ok(result)
     }
     
+    // Parse the term, calc like num3*num4
     fn parse_term(&self, chars: &mut std::iter::Peekable<std::str::Chars>) -> Result<f64, String> {
         let mut result = self.parse_factor(chars)?;
         
@@ -400,9 +403,9 @@ impl TinyCalc {
         Ok(result)
     }
     
+    // Get the number
     fn parse_factor(&self, chars: &mut std::iter::Peekable<std::str::Chars>) -> Result<f64, String> {
         let mut num_str = String::new();
-        
         // Handle negative sign at the beginning
         if let Some(&ch) = chars.peek() {
             if ch == '-' {
@@ -411,6 +414,7 @@ impl TinyCalc {
             }
         }
         
+        // Push the integer and decimal part one by one, then get the number
         while let Some(&ch) = chars.peek() {
             if ch.is_ascii_digit() || ch == '.' {
                 num_str.push(ch);
@@ -419,7 +423,8 @@ impl TinyCalc {
                 break;
             }
         }
-        
+
+        // Handle the empty string and "-"
         if num_str.is_empty() || num_str == "-" {
             Err("".to_string())
         } else {
